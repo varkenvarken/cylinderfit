@@ -1,4 +1,8 @@
 # from: https://cxc.harvard.edu/sherpa/methods/fminpowell.py.txt
+#
+# Note we removed parts we don't need and made it fully Python 3.11 compliant.
+
+
 # ******NOTICE***************
 # optimize.py module by Travis E. Oliphant
 #
@@ -350,7 +354,7 @@ def _linesearch_powell(func, p, xi, tol=1e-3):
     return squeeze(fret), p + xi, xi
 
 
-def fmin_powell(
+def minimize(
     func,
     x0,
     args=(),
@@ -517,75 +521,4 @@ def fmin_powell(
         if retall:
             retlist = (x, allvecs)
 
-    return retlist
-
-
-#
-# Scipy powell optimization method does not have xmin, xmax.  The following
-# is just a simple wrapper on the optimization method.
-#
-def my_fmin_powell(
-    fcn,
-    x0,
-    xmin,
-    xmax,
-    args=(),
-    xtol=1e-4,
-    ftol=1e-4,
-    maxiter=None,
-    maxfev=None,
-    full_output=0,
-    verbose=0,
-    retall=0,
-    callback=None,
-    direc=None,
-):
-    FUNC_MAX = numpy.float_(numpy.finfo(numpy.float_).max)
-
-    N = len(x0)
-    if maxiter is None:
-        maxiter = N * 1000
-
-    if maxfev is None:
-        maxfev = N * 1000
-
-    def _outside_limits(x, xmin, xmax):
-        return numpy.any(x < xmin) or numpy.any(x > xmax)
-
-    myxmin = asarray(xmin)
-    myxmax = asarray(xmax)
-    orig_fcn = fcn
-
-    def fcn(x_new):
-        if _outside_limits(x_new, myxmin, myxmax):
-            return FUNC_MAX
-        return orig_fcn(x_new)
-
-    result = fmin_powell(
-        fcn,
-        asarray(x0),
-        args=args,
-        xtol=xtol,
-        ftol=ftol,
-        maxiter=maxiter,
-        full_output=1,
-        disp=verbose,
-        retall=retall,
-        callback=callback,
-        direc=direc,
-    )
-    xpar = result[0]
-    fval = result[1]
-    nfev = result[4]
-    warnflag = result[5]
-
-    key = {
-        0: (True, "Optimization terminated successfully."),
-        1: (False, "number of function evaluations has exceeded maxfev=%d" % maxfev),
-        2: (False, "number of iterations has exceeded maxiter=%d" % maxiter),
-    }
-
-    status, msg = key.get(warnflag, (False, "unknown status flag (%d)" % warnflag))
-    retlist = (status, xpar, fval)
-    retlist += (msg, {"info": warnflag, "nfev": nfev})
     return retlist

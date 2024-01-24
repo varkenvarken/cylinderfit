@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from .fminpowell import fmin_powell
+from .powell import minimize
 
 
 def direction(theta, phi):
@@ -39,7 +39,7 @@ def calc_A_hat(A, S):
 
 def preprocess_data(Xs_raw):
     """Translate the center of mass (COM) of the data to the origin.
-    Return the prossed data and the shift of the COM"""
+    Return the processed data and the shift of the COM"""
     n = len(Xs_raw)
     Xs_raw_mean = sum(X for X in Xs_raw) / n
 
@@ -115,7 +115,7 @@ def fit(data, guess_angles=None):
     best_score = float("inf")
 
     for sp in start_points:
-        fitted = fmin_powell(lambda x: G(direction(x[0], x[1]), Xs), sp, full_output=1)
+        fitted = minimize(lambda x: G(direction(x[0], x[1]), Xs), sp, full_output=1)
 
         if fitted[1] < best_score:
             best_score = fitted[1]
