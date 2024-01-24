@@ -39,12 +39,10 @@ from bpy.ops import mesh
 
 from .fitting import fit
 
+
 def cylinderfit(points):
     direction, centroid, radius, error = fit(points)
     return mathutils.Vector(centroid), mathutils.Vector(direction), radius, error
-
-
-
 
 
 class CylinderFit(bpy.types.Operator):
@@ -65,6 +63,7 @@ class CylinderFit(bpy.types.Operator):
         return context.mode == "EDIT_MESH" and context.active_object.type == "MESH"
 
     def execute(self, context):
+        # NOTE scale and rotation must be applied!
         bpy.ops.object.editmode_toggle()
         me = context.active_object.data
         count = len(me.vertices)
@@ -78,15 +77,22 @@ class CylinderFit(bpy.types.Operator):
             if np.count_nonzero(selected) >= 6:
                 centroid, direction, radius, error = cylinderfit(verts[selected])
                 Z = mathutils.Vector((0, 0, 1))
-                quaternion = direction.rotation_difference(Z)
+                quaternion = Z.rotation_difference(mathutils.Vector(direction))
                 euler = quaternion.to_euler()
                 nverts = 32
                 # bpy.ops.object.editmode_toggle()
-                print(centroid, direction, radius)
+                print(f"{centroid=}, {direction=}, {radius=}, {error=}")
+                z = np.array(Z)
+                z.shape = 3, 1
+                projections = np.dot(verts[selected] - centroid, direction).flatten()
+                # for p, s in zip(projections, verts[selected]):
+                #     print(p, s)
+                length = np.max(projections) - np.min(projections)
+                print(length, np.max(projections), np.min(projections))
                 mesh.primitive_cylinder_add(
                     enter_editmode=True,
                     vertices=nverts,
-                    depth=direction.length,
+                    depth=length,
                     location=centroid,
                     radius=radius,
                     rotation=euler,
