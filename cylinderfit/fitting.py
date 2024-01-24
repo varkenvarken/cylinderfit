@@ -128,4 +128,4 @@ def fit(data, guess_angles=None):
     w = direction(best_fit[0][0], best_fit[0][1])
 
     # return w, C(w, Xs) + t, r(w, Xs), best_fit.fun
-    return w, C(w, Xs) + t, r(w, Xs), best_fit[0]
+    return w, C(w, Xs) + t, r(w, Xs), best_score

@@ -21,7 +21,7 @@
 bl_info = {
     "name": "CylinderFit",
     "author": "Michel Anders (varkenvarken)",
-    "version": (0, 0, 20240119100755),
+    "version": (0, 0, 20240123121755),
     "blender": (4, 0, 0),
     "location": "Edit mode 3d-view, Add-->CylinderFit",
     "description": "Add a cylinder to the mesh that best fits a collection of selected vertices",
@@ -50,12 +50,12 @@ class CylinderFit(bpy.types.Operator):
     bl_label = "CylinderFit"
     bl_options = {"REGISTER", "UNDO"}
 
-    size: bpy.props.FloatProperty(
-        name="Length",
-        description="Length of the line segment",
-        default=1,
-        min=0,
-        soft_max=10,
+    nverts: bpy.props.IntProperty(
+        name="Vertices",
+        description="Number of cylinder vertices",
+        default=32,
+        min=3,
+        soft_max=128,
     )
 
     @classmethod
@@ -79,7 +79,6 @@ class CylinderFit(bpy.types.Operator):
                 Z = mathutils.Vector((0, 0, 1))
                 quaternion = Z.rotation_difference(mathutils.Vector(direction))
                 euler = quaternion.to_euler()
-                nverts = 32
                 # bpy.ops.object.editmode_toggle()
                 print(f"{centroid=}, {direction=}, {radius=}, {error=}")
                 z = np.array(Z)
@@ -91,7 +90,7 @@ class CylinderFit(bpy.types.Operator):
                 print(length, np.max(projections), np.min(projections))
                 mesh.primitive_cylinder_add(
                     enter_editmode=True,
-                    vertices=nverts,
+                    vertices=self.nverts,
                     depth=length,
                     location=centroid,
                     radius=radius,
