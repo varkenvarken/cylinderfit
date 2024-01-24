@@ -28,7 +28,7 @@ Also, there currently is no feedback on progress, which might be a bit annoying 
 
 ## credits
 
-The cylinder fitting code was adapted from https://github.com/xingjiepan/cylinder_fitting which in turn was based on the algorithms described in https://www.geometrictools.com/Documentation/CylinderFitting.pdf
+The cylinder fitting code was adapted from https://github.com/xingjiepan/cylinder_fitting which in turn was based on the algorithms described in https://www.geometrictools.com/Documentation/LeastSquaresFitting.pdf
 
 To remove dependencies on external packages (except numpy, which is included with Blender), we replaced the `scikit.optimize.minimize` function with a different implementation of Powells' minimization function from https://cxc.harvard.edu/sherpa/methods/fminpowell.py.txt
 
