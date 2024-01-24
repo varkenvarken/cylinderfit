@@ -1,6 +1,10 @@
+# see: https://github.com/xingjiepan/cylinder_fitting
+# note we removed the dependency on scikit.optimize
+# and replaced this with a different powell minimization function
+# to reduce external dependencies to zero (blender includes numpy)
+
 import numpy as np
 
-# from scipy.optimize import minimize
 from .fminpowell import fmin_powell
 
 
@@ -112,20 +116,11 @@ def fit(data, guess_angles=None):
 
     for sp in start_points:
         fitted = fmin_powell(lambda x: G(direction(x[0], x[1]), Xs), sp, full_output=1)
-        print(fitted)
-        # fitted = minimize(lambda x : G(direction(x[0], x[1]), Xs),
-        #             sp, method='Powell', tol=1e-6)
-
-        # if fitted.fun < best_score:
-        #     best_score = fitted.fun
-        #     best_fit = fitted
 
         if fitted[1] < best_score:
             best_score = fitted[1]
             best_fit = fitted
 
-    # w = direction(best_fit.x[0], best_fit.x[1])
     w = direction(best_fit[0][0], best_fit[0][1])
 
-    # return w, C(w, Xs) + t, r(w, Xs), best_fit.fun
     return w, C(w, Xs) + t, r(w, Xs), best_score
