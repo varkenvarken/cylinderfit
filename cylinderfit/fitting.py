@@ -88,7 +88,7 @@ def r(w, Xs):
 def fit(data, guess_angles=None):
     """Fit a list of data points to a cylinder surface. The algorithm implemented
     here is from David Eberly's paper "Fitting 3D Data with a Cylinder" from
-    https://www.geometrictools.com/Documentation/CylinderFitting.pdf
+    https://www.geometrictools.com/Documentation/LeastSquaresFitting.pdf
 
     Arguments:
         data - A list of 3D data points to be fitted.
