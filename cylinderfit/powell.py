@@ -1,6 +1,9 @@
 # from: https://cxc.harvard.edu/sherpa/methods/fminpowell.py.txt
 #
 # Note we removed parts we don't need and made it fully Python 3.11 compliant.
+# The parts we removed where options that were either always on or always off
+# in our use case so removing them reduces the size of the code which helps
+# in reducing the maintenance burden.
 
 
 # ******NOTICE***************
@@ -10,8 +13,7 @@
 # guarantee implied provided you keep this notice in all copies.
 # *****END NOTICE************
 
-import numpy
-from numpy import asarray, eye, squeeze, sum
+from numpy import asarray, eye, squeeze
 
 
 class Brent:
@@ -362,9 +364,6 @@ def minimize(
     ftol=1e-4,
     maxiter=None,
     maxfun=None,
-    full_output=0,
-    disp=1,
-    retall=0,
     callback=None,
     direc=None,
 ):
@@ -414,13 +413,6 @@ def minimize(
         Maximum number of iterations to perform.
     maxfun : int
         Maximum number of function evaluations to make.
-    full_output : bool
-        If True, fopt, xi, direc, iter, funcalls, and
-        warnflag are returned.
-    disp : bool
-        If True, print convergence messages.
-    retall : bool
-        If True, return a list of the solution at each iteration.
 
     Notes
     -----
@@ -432,8 +424,6 @@ def minimize(
     # wrapper function
     fcalls, func = wrap_function(func, args)
     x = asarray(x0).flatten()
-    if retall:
-        allvecs = [x]
     N = len(x)
     rank = len(x.shape)
     if not -1 < rank < 2:
@@ -466,8 +456,6 @@ def minimize(
         iter += 1
         if callback is not None:
             callback(x)
-        if retall:
-            allvecs.append(x)
         if 2.0 * (fx - fval) <= ftol * (abs(fx) + abs(fval)) + 1e-20:
             break
         if fcalls[0] >= maxfun:
@@ -492,33 +480,13 @@ def minimize(
                 direc[bigind] = direc[-1]
                 direc[-1] = direc1
 
-    warnflag = 0
     if fcalls[0] >= maxfun:
-        warnflag = 1
-        if disp:
-            print(
-                "Warning: Maximum number of function evaluations has " "been exceeded."
-            )
+        raise RuntimeWarning(
+            "Maximum number of function evaluations has been exceeded."
+        )
     elif iter >= maxiter:
-        warnflag = 2
-        if disp:
-            print("Warning: Maximum number of iterations has been exceeded")
-    else:
-        if disp:
-            print("Optimization terminated successfully.")
-            print("         Current function value: %f" % fval)
-            print("         Iterations: %d" % iter)
-            print("         Function evaluations: %d" % fcalls[0])
+        raise RuntimeWarning("Maximum number of iterations has been exceeded")
 
     x = squeeze(x)
 
-    if full_output:
-        retlist = x, fval, direc, iter, fcalls[0], warnflag
-        if retall:
-            retlist += (allvecs,)
-    else:
-        retlist = x
-        if retall:
-            retlist = (x, allvecs)
-
-    return retlist
+    return x, fval, direc, iter, fcalls[0]

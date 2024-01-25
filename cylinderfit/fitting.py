@@ -115,7 +115,7 @@ def fit(data, guess_angles=None):
     best_score = float("inf")
 
     for sp in start_points:
-        fitted = minimize(lambda x: G(direction(x[0], x[1]), Xs), sp, full_output=1)
+        fitted = minimize(lambda x: G(direction(x[0], x[1]), Xs), sp)
 
         if fitted[1] < best_score:
             best_score = fitted[1]
