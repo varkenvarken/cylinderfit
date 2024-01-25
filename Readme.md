@@ -12,6 +12,12 @@ a Blender add-on to fit a cylinder to a collection of selected vertices.
 
 It will now be available in the 3d-View, in edit mode, from the Add menu
 
+### updating
+
+Make sure to remove the old version of the add-on first, and **then exit Blender**
+before reinstalling the new version of the add-on. (We do not force sub modules to reload yet
+so just removing and reinstalling without exiting Blender may fail.)
+
 ## usage
 
 - Select the mesh object that contains the points
@@ -22,9 +28,7 @@ A new, separate cylinder mesh will be added in edit mode, that fits the vertices
 
 ## caveats
 
-Currently, the mesh containing the vertices *must* have all transformations applied.
-
-Also, there currently is no feedback on progress, which might be a bit annoying if fitting takes a lot of time.
+There currently is no feedback on progress, which might be a bit annoying if fitting takes a lot of time.
 
 ## credits
 

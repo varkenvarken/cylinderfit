@@ -3,9 +3,13 @@
 # and replaced this with a different powell minimization function
 # to reduce external dependencies to zero (blender includes numpy)
 
+from collections import namedtuple
+
 import numpy as np
 
 from .powell import minimize
+
+Result = namedtuple("Result", "direction centroid radius fit")
 
 
 def direction(theta, phi):
@@ -61,7 +65,7 @@ def G(w, Xs):
     return sum((np.dot(Y, Y) - u - 2 * np.dot(Y, v)) ** 2 for Y in Ys)
 
 
-def C(w, Xs):
+def centroid(w, Xs):
     """Calculate the cylinder center given the cylinder direction and
     a list of data points.
     """
@@ -74,13 +78,13 @@ def C(w, Xs):
     return np.dot(A_hat, sum(np.dot(Y, Y) * Y for Y in Ys)) / np.trace(np.dot(A_hat, A))
 
 
-def r(w, Xs):
+def radius(w, Xs):
     """Calculate the radius given the cylinder direction and a list
     of data points.
     """
     n = len(Xs)
     P = projection_matrix(w)
-    c = C(w, Xs)
+    c = centroid(w, Xs)
 
     return np.sqrt(sum(np.dot(c - X, np.dot(P, c - X)) for X in Xs) / n)
 
@@ -101,7 +105,7 @@ def fit(data, guess_angles=None):
         Radius of the cylinder
         Fitting error (G function)
     """
-    Xs, t = preprocess_data(data)
+    normalized_data, center_of_mass = preprocess_data(data)
 
     # Set the start points
 
@@ -115,7 +119,7 @@ def fit(data, guess_angles=None):
     best_score = float("inf")
 
     for sp in start_points:
-        fitted = minimize(lambda x: G(direction(x[0], x[1]), Xs), sp)
+        fitted = minimize(lambda x: G(direction(x[0], x[1]), normalized_data), sp)
 
         if fitted[1] < best_score:
             best_score = fitted[1]
@@ -123,4 +127,9 @@ def fit(data, guess_angles=None):
 
     w = direction(best_fit[0][0], best_fit[0][1])
 
-    return w, C(w, Xs) + t, r(w, Xs), best_score
+    return Result(
+        direction=w,
+        centroid=centroid(w, normalized_data) + center_of_mass,
+        radius=radius(w, normalized_data),
+        fit=best_score,
+    )

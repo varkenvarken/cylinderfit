@@ -21,7 +21,7 @@
 bl_info = {
     "name": "CylinderFit",
     "author": "Michel Anders (varkenvarken)",
-    "version": (0, 0, 20240123121755),
+    "version": (0, 0, 20240125170150),
     "blender": (4, 0, 0),
     "location": "Edit mode 3d-view, Add-->CylinderFit",
     "description": "Add a cylinder to the mesh that best fits a collection of selected vertices",
@@ -41,8 +41,13 @@ from .fitting import fit
 
 
 def cylinderfit(points):
-    direction, centroid, radius, error = fit(points)
-    return mathutils.Vector(centroid), mathutils.Vector(direction), radius, error
+    result = fit(points)
+    return (
+        mathutils.Vector(result.centroid),
+        mathutils.Vector(result.direction),
+        result.radius,
+        result.fit,
+    )
 
 
 class CylinderFit(bpy.types.Operator):
@@ -63,17 +68,31 @@ class CylinderFit(bpy.types.Operator):
         return context.mode == "EDIT_MESH" and context.active_object.type == "MESH"
 
     def execute(self, context):
-        # NOTE scale and rotation must be applied!
         bpy.ops.object.editmode_toggle()
+        world_matrix = context.active_object.matrix_world
         me = context.active_object.data
         count = len(me.vertices)
         if count > 0:  # degenerate mesh, but better safe than sorry
+            
+            # get the vertex coordinates. We retrieve them flattened
+            # so we will have to reshape them ourselves
             shape = (count, 3)
             verts = np.empty(count * 3, dtype=np.float32)
-            selected = np.empty(count, dtype=np.bool)
             me.vertices.foreach_get("co", verts)
-            me.vertices.foreach_get("select", selected)
             verts.shape = shape
+            
+            # also get the selected status. No need to reshape because it is 1-D
+            selected = np.empty(count, dtype=bool)
+            me.vertices.foreach_get("select", selected)
+
+            # we don't want to force the user to apply transformations first, so
+            # we convert all vertex coordinates to world space, by first adding a
+            # column with all ones, so it will match our 4x4 world matrix and
+            # translations will work, and multiply the matrix with each vector
+            # and finally removing the column of ones again.
+            verts = np.c_[verts, np.ones(len(verts))]
+            verts = np.dot(world_matrix, verts.T).T[:, :3]
+
             if np.count_nonzero(selected) >= 6:
                 centroid, direction, radius, error = cylinderfit(verts[selected])
                 Z = mathutils.Vector((0, 0, 1))
@@ -92,10 +111,12 @@ class CylinderFit(bpy.types.Operator):
                     enter_editmode=True,
                     vertices=self.nverts,
                     depth=length,
-                    location=centroid,
                     radius=radius,
-                    rotation=euler,
+                    location=centroid,
+                    rotation=euler,  # (quaternion @ obj_rotation).to_euler(),
                 )
+                # context.active_object.rotation_quaternion = obj_rotation
+                # context.view_layer.update()
             else:
                 self.report(
                     {"WARNING"},
