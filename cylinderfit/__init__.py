@@ -103,7 +103,7 @@ class CylinderFit(bpy.types.Operator):
         row.prop(self,"rod")
         if self.rod:
             row.prop(self,"quantile")
-            
+
     @classmethod
     def poll(self, context):
         return context.mode == "EDIT_MESH" and context.active_object.type == "MESH"
@@ -141,25 +141,18 @@ class CylinderFit(bpy.types.Operator):
                 Z = mathutils.Vector((0, 0, 1))
                 quaternion = Z.rotation_difference(mathutils.Vector(direction))
                 euler = quaternion.to_euler()
-                # bpy.ops.object.editmode_toggle()
-                print(f"{centroid=}, {direction=}, {radius=}, {error=}")
                 z = np.array(Z)
                 z.shape = 3, 1
                 projections = np.dot(verts[selected] - centroid, direction).flatten()
-                # for p, s in zip(projections, verts[selected]):
-                #     print(p, s)
                 length = np.max(projections) - np.min(projections)
-                print(length, np.max(projections), np.min(projections))
                 mesh.primitive_cylinder_add(
                     enter_editmode=True,
                     vertices=self.nverts,
                     depth=length,
                     radius=radius,
                     location=centroid,
-                    rotation=euler,  # (quaternion @ obj_rotation).to_euler(),
+                    rotation=euler,
                 )
-                # context.active_object.rotation_quaternion = obj_rotation
-                # context.view_layer.update()
             else:
                 self.report(
                     {"WARNING"},

@@ -3,6 +3,11 @@
 # and replaced this with a different powell minimization function
 # to reduce external dependencies to zero (blender includes numpy)
 
+# TODO, there is potentially a lot of room for performance improvement
+# in particular, there are a few Python list comprehensions and sum()
+# invocations that should be replaced by numpy only code and there are
+# some redundant function calls too, e.g. centroid()
+
 from collections import namedtuple
 
 import numpy as np
@@ -155,11 +160,8 @@ def fitRod(points, quantile=0.99):
     center, direction = lineFit(points)
     points -= center
     P = projection_matrix(direction)
-    # c = centroid(direction, points)
-    # np.dot(c - X, np.dot(P, c - X)) for X in Xs
     # TODO: optimize next line, remove Python loop
     radii = [np.sqrt(np.dot(center - p, np.dot(P, center - p))) for p in points]
-    print(radii)
     radius = np.quantile(radii, quantile, overwrite_input=True)
     return Result(
         direction=direction,
