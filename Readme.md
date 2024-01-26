@@ -40,8 +40,8 @@ To remove dependencies on external packages (except numpy, which is included wit
 
 Possible improvements:
 
-- add fitting a cylinder to a constant density rod
 - add a progress indicator
+- optimizing performance if possible
 - further clean up the code bases by removing unused features
 
 ## notes

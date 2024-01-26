@@ -140,3 +140,30 @@ def fit(data, guess_angles=None):
         radius=radius(w, normalized_data),
         fit=best_score,
     )
+
+
+def lineFit(points):
+    ctr = points.mean(axis=0)
+    x = points - ctr
+    M = np.cov(x.T)
+    eigenvalues, eigenvectors = np.linalg.eig(M)
+    direction = eigenvectors[:, eigenvalues.argmax()]
+    return ctr, direction
+
+
+def fitRod(points, quantile=0.99):
+    center, direction = lineFit(points)
+    points -= center
+    P = projection_matrix(direction)
+    # c = centroid(direction, points)
+    # np.dot(c - X, np.dot(P, c - X)) for X in Xs
+    # TODO: optimize next line, remove Python loop
+    radii = [np.sqrt(np.dot(center - p, np.dot(P, center - p))) for p in points]
+    print(radii)
+    radius = np.quantile(radii, quantile, overwrite_input=True)
+    return Result(
+        direction=direction,
+        centroid=center,
+        radius=radius,
+        fit=1.0,
+    )
