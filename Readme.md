@@ -38,7 +38,10 @@ To remove dependencies on external packages (except numpy, which is included wit
 
 ## todo
 
-- Clean up the add-on to remove the need to apply transformations
+Possible improvements:
+
+- add fitting a cylinder to a constant density rod
+- add forced reloading of submodules
 - add a progress indicator
 - further clean up the code bases by removing unused features
    
