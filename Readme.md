@@ -41,7 +41,11 @@ To remove dependencies on external packages (except numpy, which is included wit
 Possible improvements:
 
 - add fitting a cylinder to a constant density rod
-- add forced reloading of submodules
 - add a progress indicator
 - further clean up the code bases by removing unused features
-   
+
+## notes
+
+The code forces reload of the submodules `fitting` and `powell`. This is necessary to make updating an add-on in Blender easier: If an add-on is a package and contains submodules, those submodules are not removed from the interpreter thread when removing and then (re)installing a new version of the add-on. This happens because there is just a single Python interpreter and loaded modules are cached.
+
+To prevent having to remember to exit Blender after removing the add-on and then starting Blender again to (re)install the add-on, we force a reload of any submodule the add-on defines itself. It is not necessary to do this for other modules, like Python standard modules or even the bundled `numpy`, because those are part of Blender and only change if you update Blender itself.

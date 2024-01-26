@@ -21,7 +21,7 @@
 bl_info = {
     "name": "CylinderFit",
     "author": "Michel Anders (varkenvarken)",
-    "version": (0, 0, 20240125170150),
+    "version": (0, 0, 20240125234617),
     "blender": (4, 0, 0),
     "location": "Edit mode 3d-view, Add-->CylinderFit",
     "description": "Add a cylinder to the mesh that best fits a collection of selected vertices",
@@ -37,8 +37,15 @@ import bpy
 import bpy.ops
 from bpy.ops import mesh
 
-from .fitting import fit
 
+# force reload of sub modules if already/still present
+from importlib import reload
+
+for mod in ("fitting",):
+    if mod in locals():
+        reload(locals()[mod])
+
+from .fitting import fit
 
 def cylinderfit(points):
     result = fit(points)

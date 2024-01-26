@@ -7,6 +7,13 @@ from collections import namedtuple
 
 import numpy as np
 
+# force reload of sub modules if already/still present
+from importlib import reload
+
+for mod in ("powell",):
+    if mod in locals():
+        reload(locals()[mod])
+
 from .powell import minimize
 
 Result = namedtuple("Result", "direction centroid radius fit")
