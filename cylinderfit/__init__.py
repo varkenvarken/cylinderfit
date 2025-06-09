@@ -1,6 +1,6 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
-#  CylinderFit, (c) 2024 Michel Anders (varkenvarken)
+#  CylinderFit, (c) 2024, 2025 Michel Anders (varkenvarken)
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -21,12 +21,12 @@
 bl_info = {
     "name": "CylinderFit",
     "author": "Michel Anders (varkenvarken)",
-    "version": (0, 0, 20240126131613),
-    "blender": (4, 0, 0),
+    "version": (0, 0, 20250609114426),
+    "blender": (4, 0, 0),  # tested with 4.4
     "location": "Edit mode 3d-view, Add-->CylinderFit",
     "description": "Add a cylinder to the mesh that best fits a collection of selected vertices",
     "warning": "",
-    "wiki_url": "",
+    "wiki_url": "https://github.com/varkenvarken/cylinderfit",
     "category": "Mesh",
 }
 

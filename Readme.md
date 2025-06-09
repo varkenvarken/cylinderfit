@@ -4,6 +4,8 @@ a Blender add-on to fit a cylinder to a collection of selected vertices.
 
 ![Cylinder fitted to randomly displaced vertices](example.png)
 
+Tested with Blender 4.4
+
 ## installation
 
 - Download cylinderfit.zip
